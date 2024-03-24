@@ -1,21 +1,23 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import styles from "../../styles/styles";
-import { categoriesData, productData } from "../../static/data";
 import {
   AiOutlineHeart,
   AiOutlineSearch,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
 import { IoIosArrowDown, IoIosArrowForward } from "react-icons/io";
+import React, { useState } from "react";
+import { categoriesData, productData } from "../../static/data";
+
 import { BiMenuAltLeft } from "react-icons/bi";
+import Cart from "../cart/Cart";
 import { CgProfile } from "react-icons/cg";
 import DropDown from "./DropDown";
+import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
-import { useSelector } from "react-redux";
-import Cart from "../cart/Cart";
-import Wishlist from "../Wishlist/Wishlist";
 import { RxCross1 } from "react-icons/rx";
+import Wishlist from "../Wishlist/Wishlist";
+import logo from "../../Assests/logo.svg";
+import styles from "../../styles/styles";
+import { useSelector } from "react-redux";
 
 const Header = ({ activeHeading }) => {
   const { isAuthenticated, user } = useSelector((state) => state.user);
@@ -57,10 +59,9 @@ const Header = ({ activeHeading }) => {
         <div className="hidden 800px:h-[50px] 800px:my-[20px] 800px:flex items-center justify-between">
           <div>
             <Link to="/">
-              <img
-                src="https://shopo.quomodothemes.website/assets/images/logo.svg"
-                alt=""
-              />
+              <h1 style={{ fontWeight: "600", fontSize: "xx-large" }}>
+                E-Kirana +
+              </h1>
             </Link>
           </div>
           {/* search box */}

@@ -1,10 +1,11 @@
-import React from "react";
-import { AiOutlineGift } from "react-icons/ai";
-import { MdOutlineLocalOffer } from "react-icons/md";
 import { FiPackage, FiShoppingBag } from "react-icons/fi";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+
+import { AiOutlineGift } from "react-icons/ai";
 import { BiMessageSquareDetail } from "react-icons/bi";
+import { Link } from "react-router-dom";
+import { MdOutlineLocalOffer } from "react-icons/md";
+import React from "react";
+import { useSelector } from "react-redux";
 
 const DashboardHeader = () => {
   const { seller } = useSelector((state) => state.seller);
@@ -12,10 +13,9 @@ const DashboardHeader = () => {
     <div className="w-full h-[80px] bg-white shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4">
       <div>
         <Link to="/dashboard">
-          <img
-            src="https://shopo.quomodothemes.website/assets/images/logo.svg"
-            alt=""
-          />
+          <h1 style={{ fontWeight: "600", fontSize: "xx-large" }}>
+            E-Kirana +
+          </h1>
         </Link>
       </div>
       <div className="flex items-center">
