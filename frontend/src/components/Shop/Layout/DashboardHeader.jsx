@@ -14,7 +14,7 @@ const DashboardHeader = () => {
       <div>
         <Link to="/dashboard">
           <h1 style={{ fontWeight: "600", fontSize: "xx-large" }}>
-            E-Kirana +
+            Proximity Shop Network
           </h1>
         </Link>
       </div>

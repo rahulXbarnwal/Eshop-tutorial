@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
+import { categoriesData, productsData } from "./ProductData";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+
+import { AiOutlinePlusCircle } from "react-icons/ai";
 import { createProduct } from "../../redux/actions/product";
-import { categoriesData } from "../../static/data";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const CreateProduct = () => {
   const { seller } = useSelector((state) => state.seller);
@@ -12,14 +13,15 @@ const CreateProduct = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [images, setImages] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState("");
-  const [originalPrice, setOriginalPrice] = useState();
-  const [discountPrice, setDiscountPrice] = useState();
-  const [stock, setStock] = useState();
+  const [originalPrice, setOriginalPrice] = useState("");
+  const [discountPrice, setDiscountPrice] = useState("");
+  const [stock, setStock] = useState("");
 
   useEffect(() => {
     if (error) {
@@ -52,72 +54,40 @@ const CreateProduct = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const newForm = new FormData();
+    if (!selectedProduct) {
+      toast.error("Please select a product.");
+      return;
+    }
 
-    images.forEach((image) => {
-      newForm.set("images", image);
-    });
-    newForm.append("name", name);
-    newForm.append("description", description);
-    newForm.append("category", category);
-    newForm.append("tags", tags);
-    newForm.append("originalPrice", originalPrice);
-    newForm.append("discountPrice", discountPrice);
-    newForm.append("stock", stock);
-    newForm.append("shopId", seller._id);
-    dispatch(
-      createProduct({
-        name,
-        description,
-        category,
-        tags,
-        originalPrice,
-        discountPrice,
-        stock,
-        shopId: seller._id,
-        images,
-      })
-    );
+    const newProduct = {
+      name: selectedProduct.name,
+      description,
+      category,
+      tags,
+      originalPrice,
+      discountPrice,
+      stock,
+      shopId: seller._id,
+      images,
+    };
+
+    dispatch(createProduct(newProduct));
   };
+
+  // Filter products based on name and category
+  const filteredProducts = productsData.filter(
+    (product) =>
+      product.name.toLowerCase().includes(name.toLowerCase()) &&
+      (category === "" || product.category === category)
+  );
 
   return (
     <div className="w-[90%] 800px:w-[50%] bg-white  shadow h-[80vh] rounded-[4px] p-3 overflow-y-scroll">
       <h5 className="text-[30px] font-Poppins text-center">Create Product</h5>
-      {/* create product form */}
       <form onSubmit={handleSubmit}>
-        <br />
-        <div>
-          <label className="pb-2">
-            Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={name}
-            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your product name..."
-          />
-        </div>
-        <br />
-        <div>
-          <label className="pb-2">
-            Description <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            cols="30"
-            required
-            rows="8"
-            type="text"
-            name="description"
-            value={description}
-            className="mt-2 appearance-none block w-full pt-2 px-3 border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter your product description..."
-          ></textarea>
-        </div>
-        <br />
-        <div>
+        {/* Select product from filtered list */}
+        {/* Category dropdown */}
+        <div className="mt-4">
           <label className="pb-2">
             Category <span className="text-red-500">*</span>
           </label>
@@ -126,102 +96,127 @@ const CreateProduct = () => {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           >
-            <option value="Choose a category">Choose a category</option>
-            {categoriesData &&
-              categoriesData.map((i) => (
-                <option value={i.title} key={i.title}>
-                  {i.title}
-                </option>
-              ))}
+            <option value="">Choose a category</option>
+            {categoriesData.map((category, index) => (
+              <option key={index} value={category.title}>
+                {category.title}
+              </option>
+            ))}
           </select>
         </div>
-        <br />
-        <div>
+        <div className="mt-4">
+          {/* Dropdown with input for searching */}
+          <div className="relative">
+            <input
+              type="text"
+              className="w-full mt-2 border h-[35px] rounded-[5px] px-3"
+              placeholder="Search for a product"
+              value={selectedProduct ? selectedProduct.name : name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <select
+              className="absolute top-0 left-0 w-full h-full border rounded-[5px] opacity-0 cursor-pointer"
+              value={selectedProduct ? selectedProduct.name : ""}
+              onChange={(e) => {
+                const productName = e.target.value;
+                setSelectedProduct(
+                  productsData.find((product) => product.name === productName)
+                );
+                setName(productName);
+              }}
+            >
+              <option value="">Select a product</option>
+              {filteredProducts.map((product) => (
+                <option key={product._id} value={product.name}>
+                  {product.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        {/* Product description */}
+        <div className="mt-4">
+          <label className="pb-2">
+            Description <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            rows="4"
+            className="w-full border rounded-[5px] px-3 py-2"
+            placeholder="Enter product description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          ></textarea>
+        </div>
+        {/* Tags input */}
+        <div className="mt-4">
           <label className="pb-2">Tags</label>
           <input
             type="text"
-            name="tags"
+            className="w-full border rounded-[5px] px-3 py-2"
+            placeholder="Enter product tags"
             value={tags}
-            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setTags(e.target.value)}
-            placeholder="Enter your product tags..."
           />
         </div>
-        <br />
-        <div>
+        {/* Original Price */}
+        <div className="mt-4">
           <label className="pb-2">Original Price</label>
           <input
             type="number"
-            name="price"
+            className="w-full border rounded-[5px] px-3 py-2"
+            placeholder="Enter original price"
             value={originalPrice}
-            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setOriginalPrice(e.target.value)}
-            placeholder="Enter your product price..."
           />
         </div>
-        <br />
-        <div>
-          <label className="pb-2">
-            Price (With Discount) <span className="text-red-500">*</span>
-          </label>
+        {/* Discounted Price */}
+        <div className="mt-4">
+          <label className="pb-2">Price (With Discount)</label>
           <input
             type="number"
-            name="price"
+            className="w-full border rounded-[5px] px-3 py-2"
+            placeholder="Enter price with discount"
             value={discountPrice}
-            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setDiscountPrice(e.target.value)}
-            placeholder="Enter your product price with discount..."
           />
         </div>
-        <br />
-        <div>
-          <label className="pb-2">
-            Product Stock <span className="text-red-500">*</span>
-          </label>
+        {/* Stock */}
+        <div className="mt-4">
+          <label className="pb-2">Product Stock</label>
           <input
             type="number"
-            name="price"
+            className="w-full border rounded-[5px] px-3 py-2"
+            placeholder="Enter product stock"
             value={stock}
-            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             onChange={(e) => setStock(e.target.value)}
-            placeholder="Enter your product stock..."
           />
         </div>
-        <br />
-        <div>
+        {/* Upload Images */}
+        <div className="mt-4">
           <label className="pb-2">
             Upload Images <span className="text-red-500">*</span>
           </label>
-          <input
-            type="file"
-            name=""
-            id="upload"
-            className="hidden"
-            multiple
-            onChange={handleImageChange}
-          />
-          <div className="w-full flex items-center flex-wrap">
-            <label htmlFor="upload">
-              <AiOutlinePlusCircle size={30} className="mt-3" color="#555" />
-            </label>
-            {images &&
-              images.map((i) => (
-                <img
-                  src={i}
-                  key={i}
-                  alt=""
-                  className="h-[120px] w-[120px] object-cover m-2"
-                />
-              ))}
+          <input type="file" multiple onChange={handleImageChange} />
+          {/* Preview selected images */}
+          <div className="mt-2 flex flex-wrap gap-2">
+            {images.map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                alt={`Product ${index + 1}`}
+                className="w-24 h-24 object-cover rounded border"
+              />
+            ))}
           </div>
-          <br />
-          <div>
-            <input
-              type="submit"
-              value="Create"
-              className="mt-2 cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
+        </div>
+        {/* Create Button */}
+        <div className="mt-4">
+          <button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Create Product
+          </button>
         </div>
       </form>
     </div>

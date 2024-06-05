@@ -60,7 +60,7 @@ const Header = ({ activeHeading }) => {
           <div>
             <Link to="/">
               <h1 style={{ fontWeight: "600", fontSize: "xx-large" }}>
-                E-Kirana +
+                Proximity Shop Network
               </h1>
             </Link>
           </div>
